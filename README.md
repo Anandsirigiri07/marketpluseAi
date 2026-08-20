@@ -1,48 +1,34 @@
 # MarketPulse AI ⚡
 
-> **Real-Time Competitor Packaging Intelligence, Dynamic Sales Battlecards & Predictive War Room Simulator.**
+> *Real-time Competitor Packaging Intelligence & Automated Sales Battlecard Generator*
 
-![Bright Data](https://img.shields.io/badge/Scraping_Engine-Bright_Data_Scraper_Studio-orange?style=for-the-badge&logo=brightdata)
-![Google Gemini](https://img.shields.io/badge/AI_Engine-Gemini_3.6_Flash-blue?style=for-the-badge&logo=google)
-![React](https://img.shields.io/badge/Frontend-React_19_%2B_Vite-61DAFB?style=for-the-badge&logo=react)
+![Bright Data Scraper Studio](https://img.shields.io/badge/Scraping_Engine-Bright_Data_Scraper_Studio-orange?style=for-the-badge&logo=brightdata)
+![Google Gemini 3.6 Flash](https://img.shields.io/badge/AI_Engine-Gemini_3.6_Flash-blue?style=for-the-badge&logo=google)
+![React 18](https://img.shields.io/badge/Frontend-React_18_%2B_Vite-61DAFB?style=for-the-badge&logo=react)
 ![Node.js](https://img.shields.io/badge/Backend-Node.js_%2B_Express-339933?style=for-the-badge&logo=nodedotjs)
 ![Tailwind CSS](https://img.shields.io/badge/Styling-Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwindcss)
 
 ---
 
-## 🎯 Value Proposition
+## 📹 Submission Links & Media
 
-When competitors silently alter pricing tiers, introduce hidden usage limits, or restructure features, B2B sales reps and GTM executives are often caught off guard during active deal cycles. 
+[![Watch Demo Video](https://img.shields.io/badge/Demo_Video-Watch_Walkthrough-blue?style=for-the-badge)](YOUR_VIDEO_LINK_HERE)
 
-**MarketPulse AI** is an autonomous competitive intelligence platform built for the **"Into the Scrape-Verse"** Hackathon. It converts live competitor pricing URLs into instant executive threat briefs, disqualifying sales battlecards, and game-theory counter-move simulations:
-
-1. **Zero-Selector Live Ingestion:** Ingests dynamic, JS-heavy competitor pricing pages using **Bright Data Scraper Studio** (`c_msxdcu7w15x1b4yflj`) without fragile CSS or XPath selectors.
-2. **Semantic AI Extraction:** Parses unstructured scraped DOM content into clean pricing tier models using **Google Gemini 3.6 Flash**.
-3. **Executive Threat Brief:** Generates a dynamic **Threat Score (0–100)** alongside actionable product, sales, and market defensibility takeaways.
-4. **Automated Sales Battlecard:** Equips account executives with disqualifying **"Kill Questions"**, live objection handling counters, and competitor trap setting strategies.
-5. **"What-If" War Room Simulator:** Simulates counter-pricing moves against real competitor data to forecast 60-day market share impact, developer sentiment, and margin risk before deploying changes live.
-
----
-
-## 📹 Demo Video & Interface Screenshots
-
-[![Demo Video](https://img.shields.io/badge/Demo_Video-Watch_Walkthrough-blue?style=for-the-badge)](YOUR_YOUTUBE_OR_LOOM_LINK)
-
-### 1. Executive Threat Brief & Threat Score (0–100)
+### 1. Executive Threat Brief (Threat Score 88/100)
 ![Executive Threat Brief](docs/screenshots/executive_threat_brief.png)
 
-### 2. AE Sales Battlecard & Disqualifying "Kill Question" Engine
+### 2. Sales Battlecard (AE Kill Question & Objections)
 ![Sales Battlecard](docs/screenshots/sales_battlecard.png)
 
-### 3. "What-If" War Room Counter-Move Simulator
+### 3. "What-If" War Room Simulator (+4.8% Market Share Projection)
 ![War Room Simulator](docs/screenshots/war_room_simulator.png)
 
-### 4. Bright Data Scraper Studio Custom Collector Pipeline
+### 4. Bright Data Scraper Studio (`MarketPulse_Pricing_Collector` Proof)
 ![Bright Data Scraper Studio Collector](docs/screenshots/brightdata_studio_collector.png)
 
 ---
 
-## 🚀 Bright Data Scraper Studio Implementation (Rule 3, Rule 5 & Rule 9 Compliance)
+## 🚀 Bright Data Scraper Studio Integration (Rules 3 & 5 Compliance)
 
 MarketPulse AI relies on **Bright Data Scraper Studio** as its core scraping engine to ingest real-world SaaS pricing pages (e.g. Supabase, Neon, Vercel, Resend).
 
@@ -51,12 +37,12 @@ MarketPulse AI relies on **Bright Data Scraper Studio** as its core scraping eng
 - **Collector ID:** `c_msxdcu7w15x1b4yflj`
 - **Trigger Endpoint:** `https://api.brightdata.com/dca/trigger?collector=c_msxdcu7w15x1b4yflj&queue_next=1`
 
-### Why Bright Data Scraper Studio over Traditional Selectors?
-1. **Zero-Selector Resilience:** Traditional scrapers break whenever SaaS companies update class names, Tailwind utility classes, or DOM layout trees. Scraper Studio delivers full markup reliably without maintenance overhead.
+### Why Bright Data Scraper Studio over Fragile Selectors?
+1. **Zero-Selector Resilience:** Traditional scrapers break whenever SaaS companies update class names, Tailwind utility classes, or DOM layout trees. Scraper Studio delivers raw DOM content reliably without maintenance overhead.
 2. **Anti-Bot & CAPTCHA Bypass:** Automatically handles IP rotation, browser fingerprinting, and rate-limiting defenses employed by cloud pricing portals.
 3. **Client-Side JS Rendering:** Captures dynamic React/Vue-rendered pricing tables and interactive currency/billing toggles.
 
-### Node.js Ingestion Code Snippet (`server/scrapeService.js`)
+### Node.js Ingestion Trigger (`server/scrapeService.js`)
 
 ```javascript
 import axios from 'axios';
@@ -65,9 +51,9 @@ export async function scrapeLivePricingPage(targetUrl) {
   const collectorId = process.env.COLLECTOR_ID || 'c_msxdcu7w15x1b4yflj';
   const apiKey = process.env.BRIGHT_DATA_API_KEY;
 
-  // Bright Data Scraper Studio Collector Endpoint
-  const triggerUrl = `https://api.brightdata.com/dca/trigger?collector=${collectorId}&queue_next=1`;
+  console.log(`[Bright Data Scraper Studio] Triggering custom collector (${collectorId})`);
 
+  const triggerUrl = `https://api.brightdata.com/dca/trigger?collector=${collectorId}&queue_next=1`;
   const response = await axios.post(
     triggerUrl,
     [{ url: targetUrl }],
@@ -91,59 +77,18 @@ export async function scrapeLivePricingPage(targetUrl) {
 
 ---
 
-## 🤖 AI Core — Powered by Google Gemini 3.6 Flash
+## 💡 Core Capabilities
 
-MarketPulse AI leverages `gemini-3.6-flash` with strict JSON mode enforcement (`responseMimeType: "application/json"`):
-
-- **Zero-Selector Semantic Parsing:** Gemini 3.6 Flash inspects unstructured scraped DOM text and extracts exact tier names, pricing thresholds, unit metering, and feature lists.
-- **Game-Theory Counter-Move Simulation:** Evaluates strategic counter-positioning scenarios against live competitor snapshots to predict market share shifts and 60-day competitor reactions.
-
-```javascript
-const response = await ai.models.generateContent({
-  model: 'gemini-3.6-flash',
-  contents: prompt,
-  config: {
-    responseMimeType: 'application/json',
-    temperature: 0.1
-  }
-});
-```
+- **Zero-Selector Semantic Ingestion:** Live scraping via Bright Data Scraper Studio fed directly into Gemini 3.6 Flash for JSON parsing without element-specific selectors.
+- **Executive Threat Brief:** Dynamic Threat Scoring (0–100), strategic intent decoding, and packaging posture breakdown for product managers and executives.
+- **AE Deal Weapon (Sales Battlecards):** Disqualifying "Kill Questions", pitch objection counters, and competitor trap setting strategies for account executives.
+- **"What-If" War Room Simulator:** Predictive game-theory modeling for market share growth, developer sentiment, margin risk, and 60-day competitor counter-reactions.
 
 ---
 
-## 🔥 Feature Matrix
+## 📊 Example Structured JSON Output (Rule 9 Compliance)
 
-| Feature | Description | Strategic Benefit |
-| :--- | :--- | :--- |
-| **Zero-Selector Ingestion** | Ingests complex SaaS pricing pages (Supabase, Neon, Vercel, Resend) without explicit element selectors | Maintenance-free scraping across page redesigns |
-| **Executive Threat Brief** | Generates a 0–100 Threat Score, strategic intent breakdown, and product/GTM takeaways | Rapid clarity for VP Product & C-Suite leadership |
-| **Sales Battlecard Engine** | Provides disqualifying "Kill Questions", pitch objection counters, and competitor trap setting | Equips Sales Reps to win against competitor claims during live calls |
-| **"What-If" War Room Simulator** | Simulates counter-pricing moves and forecasts 60-day competitor counter-reactions | Data-backed validation for pricing strategy changes |
-
----
-
-## 🏗️ Architecture & Tech Stack
-
-```mermaid
-graph TD
-    A[User / AE / Executive Dashboard] -->|React 19 + Vite + Tailwind| B[Node.js / Express Backend]
-    B -->|Trigger Collector API| C[Bright Data Scraper Studio]
-    C -->|Rendered Markup & Raw DOM| B
-    B -->|Cleaned DOM + Semantic Prompt| D[Google Gemini 3.6 Flash Engine]
-    D -->|Structured JSON Payload| B
-    B -->|Diff & Intelligence Engine| A
-```
-
-- **Frontend:** React 19, Vite, Tailwind CSS, Lucide Icons
-- **Backend:** Node.js, Express, Axios, Cors, Dotenv
-- **Scraping Engine:** Bright Data Scraper Studio (`c_msxdcu7w15x1b4yflj`)
-- **AI & Strategy Engine:** Google Gemini 3.6 Flash (`gemini-3.6-flash`)
-
----
-
-## 📊 Structured JSON Output Schema
-
-Sample payload returned by Gemini 3.6 Flash for **Supabase Pricing** analysis:
+Sample JSON payload returned for `https://supabase.com/pricing`:
 
 ```json
 {
@@ -168,7 +113,7 @@ Sample payload returned by Gemini 3.6 Flash for **Supabase Pricing** analysis:
   "intelligence": {
     "headline": "Supabase aggressively targets indie developers with an accessible Free tier while monetizing scale via Team tier add-ons.",
     "threat_level": "HIGH",
-    "threat_score": 85,
+    "threat_score": 88,
     "vulnerability_area": "Storage and egress tier overages",
     "strategic_intent": "Capture bottom-up developer market share and convert scaling startups to managed compute tiers.",
     "executive_takeaways": [
@@ -196,22 +141,33 @@ Sample payload returned by Gemini 3.6 Flash for **Supabase Pricing** analysis:
 
 ---
 
-## 🤖 Rule 10 — AI Disclosure
+## 🏗️ Architecture & Technical Decisions (Rule 11 Compliance)
 
-In compliance with **Rule 10** of the "Into the Scrape-Verse" Hackathon rules:
-- **Google Gemini 3.6 Flash** (`gemini-3.6-flash`) model was used to parse unstructured HTML into strict structured JSON schemas and calculate competitive strategy briefs.
-- Generative AI assistance (Gemini 3.6 Flash / Antigravity) was utilized for code scaffolding, full-stack architecture design, strategy orchestration, and documentation synthesis.
+```mermaid
+graph TD
+    A[User Dashboard] -->|React 18 + Vite + Tailwind| B[Node.js / Express Backend]
+    B -->|Trigger Custom Collector| C[Bright Data Scraper Studio]
+    C -->|Rendered Markup & Raw DOM| B
+    B -->|Cleaned Markup + Semantic Prompt| D[Google Gemini 3.6 Flash Engine]
+    D -->|Structured JSON Payload| B
+    B -->|Diff & Intelligence Engine| A
+```
+
+- **Data Ingestion:** Bright Data Scraper Studio (`MarketPulse_Pricing_Collector`, `COLLECTOR_ID: c_msxdcu7w15x1b4yflj`)
+- **Reasoning Engine:** Google Gemini 3.6 Flash (`gemini-3.6-flash`)
+- **Backend:** Express.js REST API + Snapshot Document Store
+- **Frontend:** React 18 + Vite + Tailwind CSS + Lucide Icons
 
 ---
 
-## 💻 Setup & Execution Guide
+## 💻 Quickstart Installation & Running
 
 ### Prerequisites
 - Node.js (v18+)
 - npm (v9+)
 
 ### Environment Setup (`server/.env`)
-Ensure `server/.env` contains your API credentials (refer to `server/.env.example`):
+Ensure `server/.env` contains your API credentials:
 
 ```env
 PORT=5000
@@ -220,18 +176,14 @@ COLLECTOR_ID=c_msxdcu7w15x1b4yflj
 GEMINI_API_KEY=your_gemini_api_key
 ```
 
-### Quick Launch Options
-
-#### Option 1: One-Click Launcher (Windows)
-Double-click `start.bat` in the root directory or run:
+### Option 1: One-Click Auto-Launcher (Windows)
+Double-click `start.bat` in the root folder or run:
 
 ```cmd
 start.bat
 ```
 
-This concurrently launches both backend and frontend servers and opens `http://localhost:5173/` in your default browser.
-
-#### Option 2: npm Script Launcher
+### Option 2: Single-Command Launch (npm)
 From the root directory:
 
 ```bash
@@ -239,5 +191,11 @@ npm install
 npm run dev
 ```
 
-- **Frontend Application:** `http://localhost:5173`
+- **Frontend App:** `http://localhost:5173`
 - **Backend API:** `http://localhost:5000`
+
+---
+
+## 🤖 AI Disclosure (Rule 10 Compliance)
+
+*In compliance with Hackathon Rule 10, Google Gemini 3.6 Flash was used as the core reasoning engine for semantic schema extraction, threat scoring, and game-theory simulation. AI coding assistants were used for full-stack scaffolding and documentation.*

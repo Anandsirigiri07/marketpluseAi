@@ -5,8 +5,8 @@
   "description": "MarketPulse AI — Real-time Competitor Packaging Intelligence & Automated Sales Battlecards",
   "main": "server/index.js",
   "scripts": {
-    "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "start": "concurrently \"cd server && node index.js\" \"cd client && npm run dev\"",
+    "dev": "concurrently \"cd server && node index.js\" \"cd client && npm run dev\"",
     "server": "cd server && node index.js",
     "client": "cd client && npm run dev"
   },

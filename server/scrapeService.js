@@ -24,7 +24,7 @@ export async function scrapeLivePricingPage(targetUrl) {
   const collectorId = process.env.COLLECTOR_ID || 'c_msxdcu7w15x1b4yflj';
   const apiKey = process.env.BRIGHT_DATA_API_KEY;
 
-  console.log(`[Bright Data Scraper Studio] Triggering collector endpoint: https://api.brightdata.com/dca/trigger?collector=${collectorId}&queue_next=1`);
+  console.log(`[Bright Data Scraper Studio] Triggering custom collector (${collectorId})`);
 
   if (apiKey && apiKey !== 'YOUR_BRIGHT_DATA_API_TOKEN') {
     try {
