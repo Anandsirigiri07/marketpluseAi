@@ -25,6 +25,13 @@
 
 ### 4. Bright Data Scraper Studio (`MarketPulse_Pricing_Collector` Proof)
 ![Bright Data Scraper Studio Collector](docs/screenshots/brightdata_studio_collector.png)
+*Collector listed as `Scraper Studio` type, Active, with 1 record delivered on 20-Aug-2026.*
+
+![Bright Data Scraper Studio Parser Code](docs/screenshots/brightdata_studio_parser_code.png)
+*Custom parser logic — extracts pricing tiers, prices, and feature bullets from the live DOM using our own selectors, not a pre-built library scraper.*
+
+![Bright Data Scraper Studio Run](docs/screenshots/brightdata_studio_run.png)
+*A real completed run (ID `j_mt1qcgk82cgq3a4zjq`) triggered via the web UI against supabase.com/pricing — 1 record, 0 failed crawls.*
 
 ---
 
