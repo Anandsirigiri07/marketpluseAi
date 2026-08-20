@@ -11,27 +11,35 @@ dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const DB_FILE = path.join(__dirname, 'snapshots.json');
-
-if (!fs.existsSync(DB_FILE)) {
-  fs.writeFileSync(DB_FILE, JSON.stringify({}), 'utf-8');
-}
+const DB_FILE = process.env.VERCEL ? '/tmp/snapshots.json' : path.join(__dirname, 'snapshots.json');
 
 function getDatabase() {
   try {
-    return JSON.parse(fs.readFileSync(DB_FILE, 'utf-8'));
+    if (fs.existsSync(DB_FILE)) {
+      return JSON.parse(fs.readFileSync(DB_FILE, 'utf-8'));
+    }
   } catch {
-    return {};
+    // Fallback for serverless or read errors
   }
+  return {};
 }
 
 function saveDatabase(data) {
-  fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
+  try {
+    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
+  } catch (err) {
+    console.warn('[Storage Notice] Read-only or ephemeral environment file write skipped:', err.message);
+  }
 }
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// Health check route
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', service: 'MarketPulse AI Backend' });
+});
 
 // Live Crawl Route
 app.post('/api/crawl-live', async (req, res) => {
@@ -83,5 +91,9 @@ app.post('/api/simulate-wargame', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`MarketPulse Real Engine running on http://localhost:${PORT}`));
+if (!process.env.VERCEL) {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => console.log(`MarketPulse Real Engine running on http://localhost:${PORT}`));
+}
+
+export default app;

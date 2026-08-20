@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 import { 
   TrendingUp, 
@@ -42,6 +42,8 @@ export default function App() {
   const [simLoading, setSimLoading] = useState(false);
   const [simulationResult, setSimulationResult] = useState<any>(null);
 
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://localhost:5000' : '');
+
   const executeLiveCrawl = async (urlToCrawl = targetUrl, compName = companyName) => {
     setLoading(true);
     setSimulationResult(null);
@@ -51,7 +53,7 @@ export default function App() {
       setTimeout(() => setCrawlStatus('🤖 Gemini extracting structured pricing matrix...'), 2000);
       setTimeout(() => setCrawlStatus('⚖️ Computing diff against historical crawl records...'), 4500);
 
-      const res = await axios.post('http://localhost:5000/api/crawl-live', {
+      const res = await axios.post(`${API_BASE}/api/crawl-live`, {
         url: urlToCrawl,
         companyName: compName
       });
@@ -72,7 +74,7 @@ export default function App() {
     if (!diffData || !counterMove) return;
     setSimLoading(true);
     try {
-      const res = await axios.post('http://localhost:5000/api/simulate-wargame', {
+      const res = await axios.post(`${API_BASE}/api/simulate-wargame`, {
         diffData,
         counterMove,
         companyName: currentSnapshot?.company_name || companyName
