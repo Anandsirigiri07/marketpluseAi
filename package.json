@@ -4,14 +4,31 @@
   "private": true,
   "description": "MarketPulse AI — Real-time Competitor Packaging Intelligence & Automated Sales Battlecards",
   "main": "server/index.js",
+  "type": "module",
   "scripts": {
     "start": "concurrently \"cd server && node index.js\" \"cd client && npm run dev\"",
     "dev": "concurrently \"cd server && node index.js\" \"cd client && npm run dev\"",
-    "build": "cd client && npm run build",
+    "build": "cd client && npm install && npm run build",
     "server": "cd server && node index.js",
     "client": "cd client && npm run dev"
   },
+  "dependencies": {
+    "@google/genai": "^2.17.1",
+    "axios": "^1.19.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "lucide-react": "^1.31.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
   "devDependencies": {
-    "concurrently": "^9.1.2"
+    "@types/node": "^24.13.3",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.4",
+    "concurrently": "^9.1.2",
+    "typescript": "~6.0.2",
+    "vite": "^8.2.0"
   }
 }
