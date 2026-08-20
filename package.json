@@ -1,0 +1,16 @@
+{
+  "name": "marketpulse-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MarketPulse AI — Real-time Competitor Packaging Intelligence & Automated Sales Battlecards",
+  "main": "server/index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && node index.js",
+    "client": "cd client && npm run dev"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

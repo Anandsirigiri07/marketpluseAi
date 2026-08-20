@@ -1,0 +1,307 @@
+{
+  "supabase": [
+    {
+      "company_name": "Supabase",
+      "pricing_tiers": [
+        {
+          "tier_name": "Free",
+          "price": "$0/month",
+          "features": [
+            "50,000 monthly active users",
+            "500 MB database size (Shared CPU, 500 MB RAM)",
+            "5 GB egress & 5 GB cached egress",
+            "1 GB file storage",
+            "Community support",
+            "Limit of 2 active projects (paused after 1 week inactivity)"
+          ]
+        },
+        {
+          "tier_name": "Pro",
+          "price": "From $25/month",
+          "features": [
+            "100,000 monthly active users (then $0.00325/MAU)",
+            "8 GB disk size per project (then $0.125/GB)",
+            "250 GB egress (then $0.09/GB) & 250 GB cached egress",
+            "100 GB file storage (then $0.0213/GB)",
+            "Email support & daily backups (7-day retention)",
+            "$10/mo compute credit included (covers Micro instance)"
+          ]
+        },
+        {
+          "tier_name": "Team",
+          "price": "From $599/month",
+          "features": [
+            "Everything in Pro Plan",
+            "SOC2 & ISO 27001 compliance",
+            "Project-scoped & read-only access",
+            "HIPAA available as paid add-on",
+            "SSO for Supabase Dashboard",
+            "Priority email support & SLAs",
+            "Daily backups stored for 14 days & 28-day log retention"
+          ]
+        },
+        {
+          "tier_name": "Enterprise",
+          "price": "Custom",
+          "features": [
+            "Designated Support manager & 24×7×365 premium support",
+            "Uptime SLAs & custom SLAs",
+            "BYO Cloud supported",
+            "Private Slack channel",
+            "Custom Security Questionnaires",
+            "Custom compute and database configurations"
+          ]
+        }
+      ],
+      "scraped_at": "2026-08-18T16:29:21.606Z",
+      "target_url": "https://supabase.com/pricing"
+    },
+    {
+      "company_name": "Supabase",
+      "pricing_tiers": [
+        {
+          "tier_name": "Free",
+          "price": "$0 / month",
+          "features": [
+            "Unlimited API requests",
+            "50,000 monthly active users",
+            "500 MB database size",
+            "Shared CPU • 500 MB RAM",
+            "5 GB egress",
+            "5 GB cached egress",
+            "1 GB file storage",
+            "Community support",
+            "Limit of 2 active projects (paused after 1 week inactivity)"
+          ]
+        },
+        {
+          "tier_name": "Pro",
+          "price": "From $25 / month",
+          "features": [
+            "Includes $10/mo in compute credits (covers 1 Micro instance)",
+            "100,000 monthly active users (then $0.00325/MAU)",
+            "8 GB disk size per project (then $0.125/GB)",
+            "250 GB egress (then $0.09/GB)",
+            "250 GB cached egress (then $0.03/GB)",
+            "100 GB file storage (then $0.0213/GB)",
+            "Email support",
+            "Daily backups stored for 7 days",
+            "7-day log retention",
+            "Optional spend cap cost control"
+          ]
+        },
+        {
+          "tier_name": "Team",
+          "price": "From $599 / month",
+          "features": [
+            "Everything in Pro Plan",
+            "SOC2 & ISO 27001 certifications",
+            "Project-scoped and read-only access roles",
+            "HIPAA compliance available as paid add-on",
+            "SSO for Supabase Dashboard",
+            "Priority email support & SLAs",
+            "Daily backups stored for 14 days",
+            "28-day log retention"
+          ]
+        },
+        {
+          "tier_name": "Enterprise",
+          "price": "Custom",
+          "features": [
+            "Designated Support Manager",
+            "Custom Uptime SLAs",
+            "BYO Cloud supported",
+            "24x7x365 premium enterprise support",
+            "Private Slack channel",
+            "Custom security questionnaires",
+            "90-day log retention"
+          ]
+        }
+      ],
+      "scraped_at": "2026-08-19T12:22:09.882Z",
+      "target_url": "https://supabase.com/pricing"
+    },
+    {
+      "company_name": "Supabase",
+      "pricing_tiers": [
+        {
+          "tier_name": "Free",
+          "price": "$0 / month",
+          "features": [
+            "Unlimited API requests",
+            "50,000 monthly active users",
+            "500 MB database size",
+            "Shared CPU • 500 MB RAM",
+            "5 GB egress & 5 GB cached egress",
+            "1 GB file storage",
+            "Community support",
+            "Free projects paused after 1 week of inactivity (limit 2 active projects)"
+          ]
+        },
+        {
+          "tier_name": "Pro",
+          "price": "From $25 / month",
+          "features": [
+            "100,000 MAUs included ($0.00325 per MAU thereafter)",
+            "8 GB disk size per project ($0.125 per GB thereafter)",
+            "250 GB egress ($0.09 per GB thereafter)",
+            "100 GB file storage ($0.0213 per GB thereafter)",
+            "Includes $10/mo compute credits (covers 1 Micro instance)",
+            "Email support",
+            "Daily backups stored for 7 days",
+            "7-day log retention",
+            "Log Drains available ($60 per drain/month add-on)"
+          ]
+        },
+        {
+          "tier_name": "Team",
+          "price": "From $599 / month",
+          "features": [
+            "Everything in Pro Plan",
+            "SOC2 and ISO 27001 certifications",
+            "Project-scoped and read-only access roles",
+            "HIPAA available as paid add-on",
+            "SSO for Supabase Dashboard",
+            "Priority email support & SLAs",
+            "Daily backups stored for 14 days",
+            "28-day log retention"
+          ]
+        },
+        {
+          "tier_name": "Enterprise",
+          "price": "Custom",
+          "features": [
+            "Designated Support manager & 24x7x365 premium support",
+            "Uptime SLAs",
+            "BYO Cloud supported",
+            "Private Slack channel",
+            "AWS PrivateLink",
+            "Custom Security Questionnaires & 90-day log retention"
+          ]
+        }
+      ],
+      "scraped_at": "2026-08-20T04:38:41.429Z",
+      "target_url": "https://supabase.com/pricing"
+    },
+    {
+      "company_name": "Supabase",
+      "pricing_tiers": [
+        {
+          "tier_name": "Free",
+          "price": "$0 / month",
+          "features": [
+            "Unlimited API requests",
+            "50,000 monthly active users",
+            "500 MB database size (Shared CPU • 500 MB RAM)",
+            "5 GB egress & 5 GB cached egress",
+            "1 GB file storage",
+            "Community support",
+            "Free projects paused after 1 week of inactivity (limit 2 active projects)"
+          ]
+        },
+        {
+          "tier_name": "Pro",
+          "price": "From $25 / month",
+          "features": [
+            "100,000 monthly active users (then $0.00325/MAU)",
+            "8 GB disk size per project (then $0.125/GB)",
+            "250 GB egress (then $0.09/GB) & 250 GB cached egress (then $0.03/GB)",
+            "100 GB file storage (then $0.0213/GB)",
+            "Email support",
+            "Daily backups stored for 7 days",
+            "7-day log retention",
+            "$10/mo in compute credits included"
+          ]
+        },
+        {
+          "tier_name": "Team",
+          "price": "From $599 / month",
+          "features": [
+            "Everything in Pro Plan",
+            "SOC2 & ISO 27001 compliance",
+            "Project-scoped and read-only access roles",
+            "HIPAA available as paid add-on",
+            "SSO for Supabase Dashboard",
+            "Priority email support & SLAs",
+            "Daily backups stored for 14 days",
+            "28-day log retention"
+          ]
+        },
+        {
+          "tier_name": "Enterprise",
+          "price": "Custom",
+          "features": [
+            "Designated Support Manager & 24x7x365 premium support",
+            "Uptime SLAs",
+            "BYO Cloud (Bring Your Own Cloud) support",
+            "Private Slack channel",
+            "Custom security questionnaires",
+            "90-day log retention & custom backup schedules"
+          ]
+        }
+      ],
+      "scraped_at": "2026-08-20T04:40:22.785Z",
+      "target_url": "https://supabase.com/pricing"
+    },
+    {
+      "company_name": "Supabase",
+      "pricing_tiers": [
+        {
+          "tier_name": "Free",
+          "price": "$0/month",
+          "features": [
+            "Unlimited API requests",
+            "50,000 monthly active users",
+            "500 MB database size (Shared CPU • 500 MB RAM)",
+            "5 GB egress & 5 GB cached egress",
+            "1 GB file storage",
+            "Community support",
+            "Limit of 2 active projects (paused after 1 week inactivity)"
+          ]
+        },
+        {
+          "tier_name": "Pro",
+          "price": "From $25/month",
+          "features": [
+            "First project included (additional projects from $10/mo)",
+            "Includes $10/mo in compute credits (covers 1 Micro instance)",
+            "100,000 monthly active users (then $0.00325 per MAU)",
+            "8 GB disk size per project (then $0.125 per GB)",
+            "250 GB egress (then $0.09 per GB) & 250 GB cached egress (then $0.03 per GB)",
+            "100 GB file storage (then $0.0213 per GB)",
+            "Daily backups stored for 7 days",
+            "Email support",
+            "Option to add Log Drains ($60/drain/mo + usage)"
+          ]
+        },
+        {
+          "tier_name": "Team",
+          "price": "From $599/month",
+          "features": [
+            "SOC2 & ISO 27001 compliance",
+            "Project-scoped and read-only access roles",
+            "HIPAA available as paid add-on",
+            "SSO for Supabase Dashboard",
+            "Priority email support & SLAs",
+            "Daily backups stored for 14 days",
+            "28-day log retention"
+          ]
+        },
+        {
+          "tier_name": "Enterprise",
+          "price": "Custom",
+          "features": [
+            "Designated Support manager & 24×7×365 premium enterprise support",
+            "Uptime SLAs",
+            "BYO Cloud supported",
+            "Private Slack channel",
+            "Custom Security Questionnaires",
+            "Custom log retention (90 days included)"
+          ]
+        }
+      ],
+      "scraped_at": "2026-08-20T05:26:03.522Z",
+      "target_url": "https://supabase.com/pricing"
+    }
+  ]
+}
