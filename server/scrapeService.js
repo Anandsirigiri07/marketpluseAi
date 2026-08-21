@@ -19,52 +19,47 @@ function cleanHtmlContent(html) {
     .trim();
 }
 
-// Scrape using Bright Data Scraper Studio Collector API with fallback
-export async function scrapeLivePricingPage(targetUrl) {
-  const collectorId = process.env.COLLECTOR_ID || 'c_msxdcu7w15x1b4yflj';
+// Scrape using Bright Data Scraper Studio Collector API exclusively (no fallback)
+export async function scrapeLivePricingPage(targetUrl, companyName) {
+  const collectorId = process.env.COLLECTOR_ID;
   const apiKey = process.env.BRIGHT_DATA_API_KEY;
 
-  console.log(`[Bright Data Scraper Studio] Triggering custom collector (${collectorId})`);
-
-  if (apiKey && apiKey !== 'YOUR_BRIGHT_DATA_API_TOKEN') {
-    try {
-      const endpointUrl = `https://api.brightdata.com/dca/trigger?collector=${collectorId}&queue_next=1`;
-      const response = await axios.post(
-        endpointUrl,
-        [{ url: targetUrl }],
-        {
-          headers: {
-            'Authorization': `Bearer ${apiKey}`,
-            'Content-Type': 'application/json'
-          },
-          timeout: 15000
-        }
-      );
-
-      console.log(`[Bright Data Scraper Studio] Collector ${collectorId} triggered successfully.`);
-      let rawData = response.data;
-      if (typeof rawData === 'object') {
-        rawData = JSON.stringify(rawData);
-      }
-      return cleanHtmlContent(rawData);
-    } catch (err) {
-      console.warn(`[Bright Data Scraper Studio] Trigger failed (${err.message}). Falling back to direct live fetch.`);
-    }
-  } else {
-    console.log(`[Bright Data Scraper Studio] Custom collector ${collectorId} active (Direct DOM fetch fallback ready).`);
+  if (!apiKey || apiKey === 'YOUR_BRIGHT_DATA_API_TOKEN' || !collectorId || collectorId === 'YOUR_COLLECTOR_ID') {
+    throw new Error('BRIGHT_DATA_API_KEY/COLLECTOR_ID not configured — cannot scrape without Scraper Studio.');
   }
 
-  // Direct live DOM scraper fallback
-  const response = await axios.get(targetUrl, {
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-      'Accept-Language': 'en-US,en;q=0.5'
-    },
-    timeout: 15000
-  });
+  let derivedName = companyName;
+  if (!derivedName) {
+    try {
+      const hostname = new URL(targetUrl).hostname.replace(/^www\./, '');
+      derivedName = hostname.split('.')[0];
+      derivedName = derivedName.charAt(0).toUpperCase() + derivedName.slice(1);
+    } catch {
+      derivedName = 'Competitor';
+    }
+  }
 
-  return cleanHtmlContent(response.data);
+  console.log(`[BRIGHT DATA EXCLUSIVE] Triggering Collector: ${collectorId}`);
+
+  const endpointUrl = `https://api.brightdata.com/dca/trigger?collector=${collectorId}&queue_next=1`;
+  const response = await axios.post(
+    endpointUrl,
+    [{ url: targetUrl, company_name: derivedName }],
+    {
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      timeout: 30000
+    }
+  );
+
+  console.log(`[BRIGHT DATA SUCCESS] Status: ${response.status}`);
+  let rawData = response.data;
+  if (typeof rawData === 'object') {
+    rawData = JSON.stringify(rawData);
+  }
+  return cleanHtmlContent(rawData);
 }
 
 export async function extractAndAnalyzeLive(pageText, targetUrl) {

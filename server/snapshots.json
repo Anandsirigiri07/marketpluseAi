@@ -484,6 +484,114 @@
       ],
       "scraped_at": "2026-08-20T06:22:52.371Z",
       "target_url": "https://supabase.com/pricing"
+    },
+    {
+      "company_name": "Supabase",
+      "pricing_tiers": [
+        {
+          "tier_name": "Free",
+          "price": "$0/month",
+          "features": [
+            "500MB Database space",
+            "5GB Storage",
+            "50,000 Monthly Active Users",
+            "500,000 Edge Function invocations",
+            "Community support",
+            "Pauses after 1 week of inactivity"
+          ]
+        },
+        {
+          "tier_name": "Pro",
+          "price": "$25/month + usage",
+          "features": [
+            "8GB Database space included",
+            "100GB Storage included",
+            "100,000 Monthly Active Users",
+            "2,000,000 Edge Function invocations",
+            "No project pausing",
+            "7-day log retention",
+            "Email support"
+          ]
+        },
+        {
+          "tier_name": "Team",
+          "price": "$599/month + usage",
+          "features": [
+            "SOC2 Type II compliance",
+            "SSO / SAML login",
+            "Read replicas support",
+            "28-day log retention",
+            "HIPAA availability as add-on",
+            "Priority support and SLA options"
+          ]
+        },
+        {
+          "tier_name": "Enterprise",
+          "price": "Custom",
+          "features": [
+            "Designated Support Manager & Architect",
+            "24/7/365 uptime SLA",
+            "Custom contracts & invoicing",
+            "BYOC / Private cloud deployments",
+            "Custom security questionnaire review"
+          ]
+        }
+      ],
+      "scraped_at": "2026-08-21T12:44:52.355Z",
+      "target_url": "https://supabase.com/pricing"
+    },
+    {
+      "company_name": "Supabase",
+      "pricing_tiers": [
+        {
+          "tier_name": "Free",
+          "price": "$0/month",
+          "features": [
+            "500 MB database space",
+            "1 GB storage",
+            "50,000 monthly active users",
+            "500,000 Edge Function invocations",
+            "Community support"
+          ]
+        },
+        {
+          "tier_name": "Pro",
+          "price": "$25/month",
+          "features": [
+            "8 GB database space included",
+            "100 GB storage included",
+            "100,000 monthly active users",
+            "Daily database backups retained for 7 days",
+            "No project pausing",
+            "Email support"
+          ]
+        },
+        {
+          "tier_name": "Team",
+          "price": "$599/month",
+          "features": [
+            "Includes all Pro features",
+            "SOC2 compliance",
+            "Read replicas support",
+            "Custom domain inclusion",
+            "Priority support & SLAs",
+            "14-day database backup retention"
+          ]
+        },
+        {
+          "tier_name": "Enterprise",
+          "price": "Custom",
+          "features": [
+            "Dedicated database instances",
+            "24/7 enterprise support with 1-hour SLA",
+            "Custom contracts & MSA",
+            "Security questionnaires & review",
+            "Dedicated Customer Success Manager"
+          ]
+        }
+      ],
+      "scraped_at": "2026-08-21T12:45:22.361Z",
+      "target_url": "https://supabase.com/pricing"
     }
   ]
 }

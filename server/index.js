@@ -6,6 +6,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { analyzeStrategicDiff, simulateWarGameScenario } from './aiService.js';
 import { scrapeLivePricingPage, extractAndAnalyzeLive } from './scrapeService.js';
+import { computePricingDiff } from './diffEngine.js';
 
 dotenv.config();
 
@@ -63,6 +64,17 @@ app.post('/api/crawl-live', async (req, res) => {
     const db = getDatabase();
     const companyKey = (liveSnapshot.company_name || 'competitor').toLowerCase().trim();
     const history = db[companyKey] || [];
+
+    let diff = null;
+    let firstCrawl = false;
+
+    if (history.length > 0) {
+      const previousSnapshot = history[history.length - 1];
+      diff = computePricingDiff(previousSnapshot, liveSnapshot);
+    } else {
+      firstCrawl = true;
+    }
+
     history.push(liveSnapshot);
     db[companyKey] = history;
     saveDatabase(db);
@@ -71,7 +83,8 @@ app.post('/api/crawl-live', async (req, res) => {
       status: 'success',
       total_historical_crawls: history.length,
       current: liveSnapshot,
-      diff: { company: liveSnapshot.company_name, pricing_tiers: liveSnapshot.pricing_tiers },
+      diff: diff,
+      first_crawl: firstCrawl,
       intelligence: result.intelligence
     });
   } catch (err) {

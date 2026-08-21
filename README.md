@@ -49,30 +49,38 @@ MarketPulse AI relies on **Bright Data Scraper Studio** as its core scraping eng
 2. **Anti-Bot & CAPTCHA Bypass:** Automatically handles IP rotation, browser fingerprinting, and rate-limiting defenses employed by cloud pricing portals.
 3. **Client-Side JS Rendering:** Captures dynamic React/Vue-rendered pricing tables and interactive currency/billing toggles.
 
+### Self-Healing
+The custom collector's parser is built with Bright Data Scraper Studio's Self-Healing feature enabled. If a target site updates its DOM hierarchy or CSS class names, Scraper Studio automatically adapts its selector resolution to maintain data extraction integrity without manual scraper maintenance.
+
 ### Node.js Ingestion Trigger (`server/scrapeService.js`)
 
 ```javascript
 import axios from 'axios';
 
 export async function scrapeLivePricingPage(targetUrl) {
-  const collectorId = process.env.COLLECTOR_ID || 'c_msxdcu7w15x1b4yflj';
+  const collectorId = process.env.COLLECTOR_ID;
   const apiKey = process.env.BRIGHT_DATA_API_KEY;
 
-  console.log(`[Bright Data Scraper Studio] Triggering custom collector (${collectorId})`);
+  if (!apiKey || apiKey === 'YOUR_BRIGHT_DATA_API_TOKEN' || !collectorId || collectorId === 'YOUR_COLLECTOR_ID') {
+    throw new Error('BRIGHT_DATA_API_KEY/COLLECTOR_ID not configured — cannot scrape without Scraper Studio.');
+  }
 
-  const triggerUrl = `https://api.brightdata.com/dca/trigger?collector=${collectorId}&queue_next=1`;
+  console.log(`[BRIGHT DATA EXCLUSIVE] Triggering Collector: ${collectorId}`);
+
+  const endpointUrl = `https://api.brightdata.com/dca/trigger?collector=${collectorId}&queue_next=1`;
   const response = await axios.post(
-    triggerUrl,
+    endpointUrl,
     [{ url: targetUrl }],
     {
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json'
       },
-      timeout: 15000
+      timeout: 30000
     }
   );
 
+  console.log(`[BRIGHT DATA SUCCESS] Status: ${response.status}`);
   let rawData = response.data;
   if (typeof rawData === 'object') {
     rawData = JSON.stringify(rawData);
@@ -164,6 +172,9 @@ graph TD
 - **Reasoning Engine:** Google Gemini 3.6 Flash (`gemini-3.6-flash`)
 - **Backend:** Express.js REST API + Snapshot Document Store
 - **Frontend:** React 18 + Vite + Tailwind CSS + Lucide Icons
+
+### Error Handling & Limitations
+In compliance with Hackathon Rule 5, live scraping strictly requires a valid Bright Data API key and collector ID. MarketPulse AI has no fallback scraping mechanism by design — if Bright Data credentials are unconfigured or if the collector API request fails, the server throws an explicit, transparent error rather than silently switching scraping methods.
 
 ---
 
