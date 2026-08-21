@@ -1,3 +1,19 @@
+function normalizeText(text) {
+  if (!text) return '';
+  return text
+    .toLowerCase()
+    .replace(/,/g, '')
+    .replace(/\/month\b/g, '/mo')
+    .replace(/\/monthly\b/g, '/mo')
+    .replace(/\/year\b/g, '/yr')
+    .replace(/\/yearly\b/g, '/yr')
+    .replace(/\bgb\b/g, 'gb')
+    .replace(/\bmb\b/g, 'mb')
+    .replace(/\btb\b/g, 'tb')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 export function computePricingDiff(previousSnapshot, currentSnapshot) {
   const diffs = {
     company: currentSnapshot.company_name,
@@ -27,7 +43,7 @@ export function computePricingDiff(previousSnapshot, currentSnapshot) {
       continue;
     }
 
-    if (prev.price !== curr.price) {
+    if (normalizeText(prev.price) !== normalizeText(curr.price)) {
       diffs.price_changes.push({
         tier: curr.tier_name,
         type: 'PRICE_CHANGED',
@@ -36,17 +52,17 @@ export function computePricingDiff(previousSnapshot, currentSnapshot) {
       });
     }
 
-    const prevFeats = new Set(prev.features || []);
-    const currFeats = new Set(curr.features || []);
+    const prevFeatsNormalized = new Set((prev.features || []).map(f => normalizeText(f)));
+    const currFeatsNormalized = new Set((curr.features || []).map(f => normalizeText(f)));
 
     (curr.features || []).forEach(f => {
-      if (!prevFeats.has(f)) {
+      if (!prevFeatsNormalized.has(normalizeText(f))) {
         diffs.added_features.push({ tier: curr.tier_name, feature: f });
       }
     });
 
     (prev.features || []).forEach(f => {
-      if (!currFeats.has(f)) {
+      if (!currFeatsNormalized.has(normalizeText(f))) {
         diffs.removed_features.push({ tier: curr.tier_name, feature: f });
       }
     });

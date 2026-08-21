@@ -73,6 +73,10 @@ ${pageText.substring(0, 15000)}
 Extract the company name, all pricing tiers, real prices, and listed features.
 Generate a strategic threat brief, sales battlecard, and counter-strategies.
 
+CRITICAL EXTRACTION RULES FOR CONSISTENCY:
+- Always format recurring monthly prices in the exact pattern "$X/mo" (e.g., "$0/mo", "$25/mo", "$599/mo") consistently.
+- Phrase each feature bullet exactly as it appears in the visible page text as closely as possible, without paraphrasing or rewording, so that repeated crawls of an unchanged page produce matching text.
+
 Respond strictly in JSON matching this schema:
 {
   "company_name": "Company Name",
