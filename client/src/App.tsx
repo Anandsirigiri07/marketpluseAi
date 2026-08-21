@@ -71,7 +71,14 @@ export default function App() {
   };
 
   const runWarGame = async () => {
-    if (!diffData || !counterMove) return;
+    if (!diffData) {
+      alert("Run a second crawl first — the simulator needs a detected change to react to.");
+      return;
+    }
+    if (!counterMove) {
+      alert("Enter a counter-move before simulating.");
+      return;
+    }
     setSimLoading(true);
     try {
       const res = await axios.post(`${API_BASE}/api/simulate-wargame`, {
