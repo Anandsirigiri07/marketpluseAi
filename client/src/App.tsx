@@ -71,19 +71,23 @@ export default function App() {
   };
 
   const runWarGame = async () => {
-    if (!diffData) {
-      alert("Run a second crawl first — the simulator needs a detected change to react to.");
+    if (!currentSnapshot && !diffData) {
+      alert("Please run a live crawl first to ingest pricing data before simulating.");
       return;
     }
-    if (!counterMove) {
-      alert("Enter a counter-move before simulating.");
+    if (!counterMove || !counterMove.trim()) {
+      alert("Please enter a strategic counter-move before simulating.");
       return;
     }
     setSimLoading(true);
     try {
+      const contextData = diffData || {
+        company: currentSnapshot?.company_name || companyName,
+        pricing_tiers: currentSnapshot?.pricing_tiers || []
+      };
       const res = await axios.post(`${API_BASE}/api/simulate-wargame`, {
-        diffData,
-        counterMove,
+        diffData: contextData,
+        counterMove: counterMove.trim(),
         companyName: currentSnapshot?.company_name || companyName
       });
       setSimulationResult(res.data.simulation);
@@ -369,6 +373,24 @@ ${report.sales_battlecard?.trap_setting}
                     <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0 }}>Simulate market reaction against {currentSnapshot?.company_name || companyName}'s live packaging</p>
                   </div>
                 </div>
+
+                {report?.counter_strategies && report.counter_strategies.length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '14px' }}>
+                    <span style={{ fontSize: '11px', color: '#a78bfa', fontWeight: '700', textTransform: 'uppercase' }}>💡 Quick-Fill Suggested Counter-Moves:</span>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      {report.counter_strategies.map((strat: string, idx: number) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => setCounterMove(strat)}
+                          style={{ background: '#1e293b', border: '1px solid #334155', color: '#e2e8f0', borderRadius: '6px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer', textAlign: 'left' }}
+                        >
+                          + {strat}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '12px', marginBottom: '24px' }}>
                   <input
