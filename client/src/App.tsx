@@ -17,6 +17,26 @@ import {
   Radio,
   History
 } from 'lucide-react';
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  Legend, 
+  ResponsiveContainer, 
+  Cell 
+} from 'recharts';
+
+interface BatchResultItem {
+  company_name: string;
+  url: string;
+  pricing_tiers: any[];
+  threat_score: number;
+  scraped_at: string;
+  status: 'success' | 'failed';
+}
 
 const LIVE_TARGETS = [
   { name: 'Supabase', url: 'https://supabase.com/pricing' },
@@ -24,6 +44,7 @@ const LIVE_TARGETS = [
   { name: 'Neon', url: 'https://neon.tech/pricing' },
   { name: 'Vercel', url: 'https://vercel.com/pricing' }
 ];
+
 
 export default function App() {
   const [targetUrl, setTargetUrl] = useState('https://supabase.com/pricing');
@@ -41,6 +62,137 @@ export default function App() {
   const [counterMove, setCounterMove] = useState('Offer free automated migrations and guarantee 20% lower compute costs');
   const [simLoading, setSimLoading] = useState(false);
   const [simulationResult, setSimulationResult] = useState<any>(null);
+
+  // Multi-target batch crawling state
+  const [selectedTargets, setSelectedTargets] = useState<string[]>([]);
+  const [batchResults, setBatchResults] = useState<BatchResultItem[]>([]);
+  const [batchLoading, setBatchLoading] = useState<boolean>(false);
+  const [batchProgress, setBatchProgress] = useState<string>('');
+
+  const executeBatchCrawl = async () => {
+    if (selectedTargets.length === 0 || selectedTargets.length > 5 || batchLoading || loading) return;
+
+    setBatchLoading(true);
+    setBatchResults([]);
+    setBatchProgress('');
+
+    const targetsToCrawl = LIVE_TARGETS.filter(t => selectedTargets.includes(t.name));
+    const total = targetsToCrawl.length;
+    const results: BatchResultItem[] = [];
+
+    for (let i = 0; i < total; i++) {
+      const target = targetsToCrawl[i];
+      setBatchProgress(`Crawling ${i + 1} of ${total}: ${target.name}...`);
+
+      let success = false;
+      let responseData: any = null;
+
+      try {
+        const res = await axios.post(`${API_BASE}/api/crawl-live`, {
+          url: target.url,
+          companyName: target.name
+        });
+        responseData = res.data;
+        success = true;
+      } catch (err: any) {
+        const status = err.response?.status;
+        const errMsg = String(err.message || '').toLowerCase();
+        const errDataMsg = String(err.response?.data?.error || '').toLowerCase();
+        const isRateLimit = status === 429 || errMsg.includes('429') || errMsg.includes('rate limit') || errDataMsg.includes('rate limit');
+
+        if (isRateLimit) {
+          setBatchProgress(`Rate limited on ${target.name}. Retrying in 5s...`);
+          await new Promise(r => setTimeout(r, 5000));
+          try {
+            const retryRes = await axios.post(`${API_BASE}/api/crawl-live`, {
+              url: target.url,
+              companyName: target.name
+            });
+            responseData = retryRes.data;
+            success = true;
+          } catch (retryErr: any) {
+            success = false;
+          }
+        } else {
+          success = false;
+        }
+      }
+
+      if (success && responseData) {
+        const item: BatchResultItem = {
+          company_name: responseData.current?.company_name || target.name,
+          url: responseData.current?.target_url || target.url,
+          pricing_tiers: responseData.current?.pricing_tiers || [],
+          threat_score: responseData.intelligence?.threat_score ?? 80,
+          scraped_at: responseData.current?.scraped_at || new Date().toISOString(),
+          status: 'success'
+        };
+        results.push(item);
+        setBatchResults(prev => [...prev, item]);
+      } else {
+        const item: BatchResultItem = {
+          company_name: target.name,
+          url: target.url,
+          pricing_tiers: [],
+          threat_score: 0,
+          scraped_at: new Date().toISOString(),
+          status: 'failed'
+        };
+        results.push(item);
+        setBatchResults(prev => [...prev, item]);
+      }
+
+      if (i < total - 1) {
+        await new Promise(r => setTimeout(r, 2000));
+      }
+    }
+
+    const succeededCount = results.filter(r => r.status === 'success').length;
+    setBatchLoading(false);
+    setBatchProgress(`${succeededCount} of ${total} succeeded`);
+  };
+
+  const COMPANY_COLORS = ['#38bdf8', '#6366f1', '#34d399', '#f43f5e', '#fbbf24'];
+
+  const parsePriceString = (priceStr: any): number | null => {
+    if (!priceStr || typeof priceStr !== 'string') return null;
+    const lower = priceStr.toLowerCase();
+    if (lower.includes('custom') || lower.includes('contact') || lower.includes('sales')) {
+      return null;
+    }
+    const cleaned = priceStr.replace(/[^0-9.]/g, '');
+    if (!cleaned) return null;
+    const parsed = parseFloat(cleaned);
+    return isNaN(parsed) ? null : parsed;
+  };
+
+  const successfulResults = batchResults.filter(r => r.status === 'success');
+  const failedResults = batchResults.filter(r => r.status === 'failed');
+
+  const threatChartData = successfulResults.map(r => ({
+    company_name: r.company_name,
+    threat_score: r.threat_score
+  }));
+
+  const successfulCompanies = successfulResults.map(r => r.company_name);
+
+  const tierMap: Record<string, Record<string, number>> = {};
+  successfulResults.forEach(r => {
+    (r.pricing_tiers || []).forEach((t: any) => {
+      if (!t || !t.tier_name) return;
+      const numPrice = parsePriceString(t.price);
+      if (numPrice === null) return;
+      if (!tierMap[t.tier_name]) {
+        tierMap[t.tier_name] = {};
+      }
+      tierMap[t.tier_name][r.company_name] = numPrice;
+    });
+  });
+
+  const pricingChartData = Object.keys(tierMap).map(tierName => ({
+    tier_name: tierName,
+    ...tierMap[tierName]
+  }));
 
   const API_BASE = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://localhost:5000' : '');
 
@@ -159,27 +311,69 @@ ${report.sales_battlecard?.trap_setting}
 
         {/* Live URL Input Panel */}
         <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '16px', padding: '20px', marginBottom: '20px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '10px' }}>
             <label style={{ fontSize: '12px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' }}>
               Target Real-World SaaS Pricing Page
             </label>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
               <span style={{ fontSize: '11px', color: '#64748b' }}>Quick Target:</span>
               {LIVE_TARGETS.map(t => (
-                <button
-                  key={t.name}
-                  onClick={() => {
-                    setCompanyName(t.name);
-                    setTargetUrl(t.url);
-                    executeLiveCrawl(t.url, t.name);
-                  }}
-                  style={{ background: '#1e293b', border: '1px solid #334155', color: '#94a3b8', padding: '3px 8px', borderRadius: '6px', fontSize: '11px', cursor: 'pointer' }}
-                >
-                  {t.name}
-                </button>
+                <div key={t.name} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <input
+                    type="checkbox"
+                    checked={selectedTargets.includes(t.name)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedTargets(prev => [...prev, t.name]);
+                      } else {
+                        setSelectedTargets(prev => prev.filter(name => name !== t.name));
+                      }
+                    }}
+                    style={{ cursor: 'pointer', accentColor: '#38bdf8' }}
+                  />
+                  <button
+                    onClick={() => {
+                      setCompanyName(t.name);
+                      setTargetUrl(t.url);
+                      executeLiveCrawl(t.url, t.name);
+                    }}
+                    style={{ background: '#1e293b', border: '1px solid #334155', color: '#94a3b8', padding: '3px 8px', borderRadius: '6px', fontSize: '11px', cursor: 'pointer' }}
+                  >
+                    {t.name}
+                  </button>
+                </div>
               ))}
+
+              <button
+                onClick={executeBatchCrawl}
+                disabled={selectedTargets.length === 0 || selectedTargets.length > 5 || batchLoading || loading}
+                style={{
+                  background: (selectedTargets.length === 0 || selectedTargets.length > 5 || batchLoading || loading) 
+                    ? '#1e293b' 
+                    : 'linear-gradient(135deg, #0284c7, #0369a1)',
+                  color: (selectedTargets.length === 0 || selectedTargets.length > 5 || batchLoading || loading) ? '#64748b' : '#fff',
+                  border: '1px solid #334155',
+                  borderRadius: '6px',
+                  padding: '4px 10px',
+                  fontSize: '11px',
+                  fontWeight: '700',
+                  cursor: (selectedTargets.length === 0 || selectedTargets.length > 5 || batchLoading || loading) ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                {batchLoading ? <RefreshCw size={13} className="spin" /> : <Play size={13} />}
+                Crawl Selected ({selectedTargets.length})
+              </button>
             </div>
           </div>
+
+          {selectedTargets.length > 5 && (
+            <div style={{ marginBottom: '12px', fontSize: '12px', color: '#ef4444', fontWeight: '600' }}>
+              ⚠️ Max 5 targets per batch to stay within free API limits
+            </div>
+          )}
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 2.5fr auto', gap: '12px', alignItems: 'center' }}>
             <input
@@ -199,8 +393,8 @@ ${report.sales_battlecard?.trap_setting}
             </div>
             <button
               onClick={() => executeLiveCrawl(targetUrl, companyName)}
-              disabled={loading}
-              style={{ background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', color: '#fff', border: 'none', borderRadius: '8px', padding: '12px 22px', fontWeight: '700', cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}
+              disabled={loading || batchLoading}
+              style={{ background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', color: '#fff', border: 'none', borderRadius: '8px', padding: '12px 22px', fontWeight: '700', cursor: (loading || batchLoading) ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}
             >
               {loading ? <RefreshCw size={16} className="spin" /> : <Zap size={16} />}
               {loading ? 'Crawling Live...' : 'Crawl & Analyze'}
@@ -210,6 +404,13 @@ ${report.sales_battlecard?.trap_setting}
           {crawlStatus && (
             <div style={{ marginTop: '14px', fontSize: '13px', color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <RefreshCw size={14} className="spin" /> {crawlStatus}
+            </div>
+          )}
+
+          {batchProgress && (
+            <div style={{ marginTop: '14px', fontSize: '13px', color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {batchLoading ? <RefreshCw size={14} className="spin" /> : <CheckCircle2 size={14} color="#34d399" />}
+              <span>{batchProgress}</span>
             </div>
           )}
         </div>
@@ -226,6 +427,82 @@ ${report.sales_battlecard?.trap_setting}
               </span>
               <span>Crawled: <strong style={{ color: '#f8fafc' }}>{new Date(currentSnapshot.scraped_at).toLocaleTimeString()}</strong></span>
             </div>
+          </div>
+        )}
+
+        {/* Competitor Comparison Section */}
+        {successfulResults.length >= 2 && (
+          <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '16px', padding: '24px', marginBottom: '20px' }}>
+            <div style={{ marginBottom: '18px' }}>
+              <span style={{ fontSize: '11px', fontWeight: '800', letterSpacing: '1px', color: '#38bdf8', textTransform: 'uppercase' }}>MULTI-TARGET BATCH ANALYTICS</span>
+              <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#f8fafc', margin: '4px 0 0 0' }}>Competitor Comparison</h2>
+              <p style={{ fontSize: '13px', color: '#94a3b8', margin: '2px 0 0 0' }}>
+                Side-by-side threat evaluation & pricing tier matrix
+              </p>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '20px' }}>
+              {/* Chart 1: Threat Score per company */}
+              <div style={{ background: '#070b14', border: '1px solid #1e293b', borderRadius: '12px', padding: '18px' }}>
+                <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#cbd5e1', marginBottom: '14px' }}>Threat Score by Competitor (0–100)</h3>
+                <div style={{ width: '100%', height: '260px' }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={threatChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                      <XAxis dataKey="company_name" stroke="#94a3b8" tick={{ fontSize: 12 }} />
+                      <YAxis domain={[0, 100]} stroke="#94a3b8" tick={{ fontSize: 12 }} />
+                      <Tooltip
+                        contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#f8fafc', fontSize: '12px' }}
+                        itemStyle={{ color: '#38bdf8' }}
+                      />
+                      <Bar dataKey="threat_score" name="Threat Score" fill="#6366f1" radius={[4, 4, 0, 0]}>
+                        {threatChartData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.threat_score >= 80 ? '#f43f5e' : entry.threat_score >= 60 ? '#f59e0b' : '#38bdf8'} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* Chart 2: Price per tier per company */}
+              <div style={{ background: '#070b14', border: '1px solid #1e293b', borderRadius: '12px', padding: '18px' }}>
+                <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#cbd5e1', marginBottom: '14px' }}>Pricing per Tier by Competitor ($)</h3>
+                <div style={{ width: '100%', height: '260px' }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={pricingChartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                      <XAxis dataKey="tier_name" stroke="#94a3b8" tick={{ fontSize: 12 }} />
+                      <YAxis stroke="#94a3b8" tick={{ fontSize: 12 }} unit="$" />
+                      <Tooltip
+                        contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#f8fafc', fontSize: '12px' }}
+                        formatter={(value: any) => [`$${value}`, 'Price']}
+                      />
+                      <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '8px' }} />
+                      {successfulCompanies.map((compName, idx) => (
+                        <Bar
+                          key={compName}
+                          dataKey={compName}
+                          name={compName}
+                          fill={COMPANY_COLORS[idx % COMPANY_COLORS.length]}
+                          radius={[4, 4, 0, 0]}
+                        />
+                      ))}
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Inline note for failed targets */}
+        {failedResults.length > 0 && !batchLoading && (
+          <div style={{ marginBottom: '20px', padding: '12px 16px', background: '#1c1917', border: '1px solid #78350f', borderRadius: '10px', fontSize: '13px', color: '#fef08a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <AlertTriangle size={16} color="#f59e0b" style={{ flexShrink: 0 }} />
+            <span>
+              <strong>Batch Note:</strong> The following target(s) failed during batch crawl: <strong>{failedResults.map(r => r.company_name).join(', ')}</strong>. You can retry them individually using the single-crawl flow above.
+            </span>
           </div>
         )}
 

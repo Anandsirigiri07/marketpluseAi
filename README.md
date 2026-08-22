@@ -173,6 +173,9 @@ graph TD
 - **Backend:** Express.js REST API + Snapshot Document Store
 - **Frontend:** React 18 + Vite + Tailwind CSS + Lucide Icons
 
+### Throttled Sequential Batch Crawling
+Multi-target batch crawling is intentionally implemented as a sequential process with a 2-second throttle between targets, a 5-second backoff with single retry on rate-limits (HTTP 429), and a strict cap of 5 targets per batch. This is a deliberate architectural decision to ensure safe execution under free-tier Bright Data credit allocations and free-tier Gemini API requests-per-minute (RPM) quotas, avoiding rate-limit drops or API quota exhaustion during multi-competitor comparisons.
+
 ### Error Handling & Limitations
 In compliance with Hackathon Rule 5, live scraping strictly requires a valid Bright Data API key and collector ID. MarketPulse AI has no fallback scraping mechanism by design — if Bright Data credentials are unconfigured or if the collector API request fails, the server throws an explicit, transparent error rather than silently switching scraping methods.
 
