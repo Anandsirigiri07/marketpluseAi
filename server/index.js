@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { analyzeStrategicDiff, simulateWarGameScenario } from './aiService.js';
+import { analyzeStrategicDiff, simulateWarGameScenario, generateBatchComparison } from './aiService.js';
 import { scrapeLivePricingPage, extractAndAnalyzeLive } from './scrapeService.js';
 import { computePricingDiff } from './diffEngine.js';
 
@@ -103,6 +103,22 @@ app.post('/api/simulate-wargame', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// Batch Comparison Analysis Route
+app.post('/api/analyze-batch', async (req, res) => {
+  try {
+    const { results } = req.body;
+    if (!results || !Array.isArray(results) || results.length < 2) {
+      return res.status(400).json({ error: 'At least 2 target results are required for batch analysis.' });
+    }
+    const analysis = await generateBatchComparison(results);
+    res.json({ analysis });
+  } catch (err) {
+    console.error('[Batch Analysis Error]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 if (!process.env.VERCEL) {
   const PORT = process.env.PORT || 5000;

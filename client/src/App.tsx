@@ -69,12 +69,18 @@ export default function App() {
   const [batchLoading, setBatchLoading] = useState<boolean>(false);
   const [batchProgress, setBatchProgress] = useState<string>('');
 
+  // AI Comparative Analysis state
+  const [batchAnalysis, setBatchAnalysis] = useState<any | null>(null);
+  const [batchAnalysisLoading, setBatchAnalysisLoading] = useState<boolean>(false);
+
   const executeBatchCrawl = async () => {
     if (selectedTargets.length === 0 || selectedTargets.length > 5 || batchLoading || loading) return;
 
     setBatchLoading(true);
     setBatchResults([]);
     setBatchProgress('');
+    setBatchAnalysis(null);
+    setBatchAnalysisLoading(false);
 
     const targetsToCrawl = LIVE_TARGETS.filter(t => selectedTargets.includes(t.name));
     const total = targetsToCrawl.length;
@@ -147,9 +153,30 @@ export default function App() {
       }
     }
 
-    const succeededCount = results.filter(r => r.status === 'success').length;
+    const succeededResults = results.filter(r => r.status === 'success');
     setBatchLoading(false);
-    setBatchProgress(`${succeededCount} of ${total} succeeded`);
+    setBatchProgress(`${succeededResults.length} of ${total} succeeded`);
+
+    // Call single batch AI comparative analysis if at least 2 succeeded
+    if (succeededResults.length >= 2) {
+      setBatchAnalysisLoading(true);
+      try {
+        const payload = succeededResults.map(r => ({
+          company_name: r.company_name,
+          pricing_tiers: r.pricing_tiers,
+          threat_score: r.threat_score
+        }));
+        const res = await axios.post(`${API_BASE}/api/analyze-batch`, { results: payload });
+        setBatchAnalysis(res.data.analysis);
+      } catch (err) {
+        console.error('Batch AI comparative analysis failed:', err);
+        setBatchAnalysis(null);
+      } finally {
+        setBatchAnalysisLoading(false);
+      }
+    } else {
+      setBatchAnalysis(null);
+    }
   };
 
   const COMPANY_COLORS = ['#38bdf8', '#6366f1', '#34d399', '#f43f5e', '#fbbf24'];
@@ -437,9 +464,80 @@ ${report.sales_battlecard?.trap_setting}
               <span style={{ fontSize: '11px', fontWeight: '800', letterSpacing: '1px', color: '#38bdf8', textTransform: 'uppercase' }}>MULTI-TARGET BATCH ANALYTICS</span>
               <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#f8fafc', margin: '4px 0 0 0' }}>Competitor Comparison</h2>
               <p style={{ fontSize: '13px', color: '#94a3b8', margin: '2px 0 0 0' }}>
-                Side-by-side threat evaluation & pricing tier matrix
+                Side-by-side threat evaluation, pricing matrix & Gemini positioning analysis
               </p>
             </div>
+
+            {/* AI Comparative Analysis Loading State */}
+            {batchAnalysisLoading && (
+              <div style={{ background: '#070b14', border: '1px solid #1e293b', borderRadius: '12px', padding: '16px 20px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px', color: '#38bdf8', fontSize: '13px' }}>
+                <RefreshCw size={16} className="spin" /> 🤖 Gemini synthesizing multi-competitor positioning & comparative intelligence...
+              </div>
+            )}
+
+            {/* AI Comparative Analysis Card (ABOVE existing comparison charts) */}
+            {batchAnalysis && (
+              <div style={{ background: '#070b14', border: '1px solid #1e293b', borderRadius: '12px', padding: '20px', marginBottom: '20px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+                  <div style={{ background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', padding: '8px', borderRadius: '10px' }}>
+                    <Sparkles size={18} color="#fff" />
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '11px', fontWeight: '800', letterSpacing: '1px', color: '#a78bfa', textTransform: 'uppercase' }}>GEMINI REASONING ENGINE</span>
+                    <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#f8fafc', margin: 0 }}>AI Comparative Analysis</h3>
+                  </div>
+                </div>
+
+                {/* Metric Highlights Grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px', marginBottom: '16px' }}>
+                  <div style={{ background: '#0f172a', border: '1px solid #1e293b', padding: '12px 14px', borderRadius: '8px' }}>
+                    <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: '700', textTransform: 'uppercase' }}>Cheapest Entry Tier</span>
+                    <div style={{ fontSize: '14px', fontWeight: '800', color: '#34d399', marginTop: '4px' }}>
+                      {batchAnalysis.cheapest_entry_tier?.company}{' '}
+                      <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: '600' }}>({batchAnalysis.cheapest_entry_tier?.price})</span>
+                    </div>
+                  </div>
+
+                  <div style={{ background: '#0f172a', border: '1px solid #1e293b', padding: '12px 14px', borderRadius: '8px' }}>
+                    <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: '700', textTransform: 'uppercase' }}>Most Expensive Tier</span>
+                    <div style={{ fontSize: '14px', fontWeight: '800', color: '#fbbf24', marginTop: '4px' }}>
+                      {batchAnalysis.most_expensive_tier?.company} - {batchAnalysis.most_expensive_tier?.tier_name}{' '}
+                      <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: '600' }}>({batchAnalysis.most_expensive_tier?.price})</span>
+                    </div>
+                  </div>
+
+                  <div style={{ background: '#0f172a', border: '1px solid #1e293b', padding: '12px 14px', borderRadius: '8px' }}>
+                    <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: '700', textTransform: 'uppercase' }}>Highest Threat Competitor</span>
+                    <div style={{ fontSize: '14px', fontWeight: '800', color: '#f43f5e', marginTop: '4px' }}>
+                      {batchAnalysis.highest_threat?.company}{' '}
+                      <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: '600' }}>({batchAnalysis.highest_threat?.threat_score}/100)</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Key Insights List */}
+                {batchAnalysis.key_insights && batchAnalysis.key_insights.length > 0 && (
+                  <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px', padding: '14px 16px', marginBottom: '14px' }}>
+                    <h4 style={{ fontSize: '12px', fontWeight: '800', color: '#38bdf8', textTransform: 'uppercase', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <Target size={14} color="#38bdf8" /> Key Comparative Insights
+                    </h4>
+                    <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '13px', color: '#cbd5e1', lineHeight: '1.7' }}>
+                      {batchAnalysis.key_insights.map((insight: string, idx: number) => (
+                        <li key={idx}>{insight}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Recommendation Highlight Callout */}
+                {batchAnalysis.recommendation && (
+                  <div style={{ background: 'linear-gradient(135deg, rgba(79, 70, 229, 0.15), rgba(124, 58, 237, 0.15))', border: '1px solid #6366f1', borderRadius: '8px', padding: '12px 16px', fontSize: '13px', color: '#e2e8f0', lineHeight: '1.5' }}>
+                    <strong style={{ color: '#a78bfa' }}>💡 Strategic Positioning Advice: </strong>
+                    <span>{batchAnalysis.recommendation}</span>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '20px' }}>
               {/* Chart 1: Threat Score per company */}

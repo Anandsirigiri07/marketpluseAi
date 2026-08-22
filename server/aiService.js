@@ -79,3 +79,37 @@ Forecast the strategic outcome strictly in JSON matching this schema:
 
   return JSON.parse(response.text);
 }
+
+export async function generateBatchComparison(results) {
+  const prompt = `
+Analyze these multi-competitor live pricing and threat evaluation results:
+
+${JSON.stringify(results, null, 2)}
+
+Provide an executive comparative analysis strictly in JSON matching this exact schema:
+{
+  "cheapest_entry_tier": { "company": "Company Name", "price": "$0/mo or lowest entry price" },
+  "most_expensive_tier": { "company": "Company Name", "price": "$599/mo or highest price", "tier_name": "Tier Name" },
+  "highest_threat": { "company": "Company Name", "threat_score": 88 },
+  "key_insights": [
+    "Comparative insight 1",
+    "Comparative insight 2",
+    "Comparative insight 3"
+  ],
+  "recommendation": "One sentence strategic positioning advice given this competitive set."
+}
+
+IMPORTANT: Strictly use the data provided above. Do not invent any numbers, companies, tier names, or prices.
+`;
+
+  const response = await ai.models.generateContent({
+    model: 'gemini-3.6-flash',
+    contents: prompt,
+    config: {
+      responseMimeType: 'application/json',
+      temperature: 0.2
+    }
+  });
+
+  return JSON.parse(response.text);
+}
