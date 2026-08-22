@@ -65,6 +65,10 @@ export default function App() {
 
   // Multi-target batch crawling state
   const [selectedTargets, setSelectedTargets] = useState<string[]>([]);
+  const [customBatchTargets, setCustomBatchTargets] = useState<Array<{ name: string; url: string }>>([]);
+  const [customName, setCustomName] = useState<string>('');
+  const [customUrl, setCustomUrl] = useState<string>('');
+
   const [batchResults, setBatchResults] = useState<BatchResultItem[]>([]);
   const [batchLoading, setBatchLoading] = useState<boolean>(false);
   const [batchProgress, setBatchProgress] = useState<string>('');
@@ -73,8 +77,10 @@ export default function App() {
   const [batchAnalysis, setBatchAnalysis] = useState<any | null>(null);
   const [batchAnalysisLoading, setBatchAnalysisLoading] = useState<boolean>(false);
 
+  const totalBatchCount = selectedTargets.length + customBatchTargets.length;
+
   const executeBatchCrawl = async () => {
-    if (selectedTargets.length === 0 || selectedTargets.length > 5 || batchLoading || loading) return;
+    if (totalBatchCount === 0 || totalBatchCount > 5 || batchLoading || loading) return;
 
     setBatchLoading(true);
     setBatchResults([]);
@@ -82,7 +88,8 @@ export default function App() {
     setBatchAnalysis(null);
     setBatchAnalysisLoading(false);
 
-    const targetsToCrawl = LIVE_TARGETS.filter(t => selectedTargets.includes(t.name));
+    const presetTargetsToCrawl = LIVE_TARGETS.filter(t => selectedTargets.includes(t.name));
+    const targetsToCrawl = [...presetTargetsToCrawl, ...customBatchTargets];
     const total = targetsToCrawl.length;
     const results: BatchResultItem[] = [];
 
@@ -373,30 +380,81 @@ ${report.sales_battlecard?.trap_setting}
 
               <button
                 onClick={executeBatchCrawl}
-                disabled={selectedTargets.length === 0 || selectedTargets.length > 5 || batchLoading || loading}
+                disabled={totalBatchCount === 0 || totalBatchCount > 5 || batchLoading || loading}
                 style={{
-                  background: (selectedTargets.length === 0 || selectedTargets.length > 5 || batchLoading || loading) 
+                  background: (totalBatchCount === 0 || totalBatchCount > 5 || batchLoading || loading) 
                     ? '#1e293b' 
                     : 'linear-gradient(135deg, #0284c7, #0369a1)',
-                  color: (selectedTargets.length === 0 || selectedTargets.length > 5 || batchLoading || loading) ? '#64748b' : '#fff',
+                  color: (totalBatchCount === 0 || totalBatchCount > 5 || batchLoading || loading) ? '#64748b' : '#fff',
                   border: '1px solid #334155',
                   borderRadius: '6px',
                   padding: '4px 10px',
                   fontSize: '11px',
                   fontWeight: '700',
-                  cursor: (selectedTargets.length === 0 || selectedTargets.length > 5 || batchLoading || loading) ? 'not-allowed' : 'pointer',
+                  cursor: (totalBatchCount === 0 || totalBatchCount > 5 || batchLoading || loading) ? 'not-allowed' : 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '6px'
                 }}
               >
                 {batchLoading ? <RefreshCw size={13} className="spin" /> : <Play size={13} />}
-                Crawl Selected ({selectedTargets.length})
+                Crawl Selected ({totalBatchCount})
               </button>
             </div>
           </div>
 
-          {selectedTargets.length > 5 && (
+          {/* Custom Target Input Row */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px', flexWrap: 'wrap', background: '#070b14', border: '1px solid #1e293b', padding: '10px 14px', borderRadius: '10px' }}>
+            <span style={{ fontSize: '11px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Add Custom Target:</span>
+            <input
+              value={customName}
+              onChange={(e) => setCustomName(e.target.value)}
+              placeholder="Name (e.g. Linear)"
+              style={{ background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '5px 10px', color: '#fff', fontSize: '12px', outline: 'none', width: '130px' }}
+            />
+            <input
+              value={customUrl}
+              onChange={(e) => setCustomUrl(e.target.value)}
+              placeholder="URL (https://...)"
+              style={{ background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '5px 10px', color: '#fff', fontSize: '12px', outline: 'none', flex: 1, minWidth: '180px' }}
+            />
+            <button
+              type="button"
+              onClick={() => {
+                if (customName.trim() && customUrl.trim()) {
+                  setCustomBatchTargets(prev => [...prev, { name: customName.trim(), url: customUrl.trim() }]);
+                  setCustomName('');
+                  setCustomUrl('');
+                }
+              }}
+              style={{ background: '#1e293b', border: '1px solid #38bdf8', color: '#38bdf8', borderRadius: '6px', padding: '5px 12px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+            >
+              <PlusCircle size={13} /> + Add to Batch
+            </button>
+
+            {/* Removable Chips */}
+            {customBatchTargets.length > 0 && (
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginLeft: '4px' }}>
+                {customBatchTargets.map((item, idx) => (
+                  <span
+                    key={idx}
+                    style={{ background: '#1e293b', border: '1px solid #475569', color: '#38bdf8', borderRadius: '12px', padding: '2px 8px', fontSize: '11px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}
+                  >
+                    {item.name}
+                    <button
+                      type="button"
+                      onClick={() => setCustomBatchTargets(prev => prev.filter((_, i) => i !== idx))}
+                      style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: 0, fontSize: '12px', fontWeight: '700', lineHeight: 1 }}
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {totalBatchCount > 5 && (
             <div style={{ marginBottom: '12px', fontSize: '12px', color: '#ef4444', fontWeight: '600' }}>
               ⚠️ Max 5 targets per batch to stay within free API limits
             </div>
