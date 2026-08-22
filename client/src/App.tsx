@@ -68,6 +68,37 @@ export default function App() {
   const [customBatchTargets, setCustomBatchTargets] = useState<Array<{ name: string; url: string }>>([]);
   const [customName, setCustomName] = useState<string>('');
   const [customUrl, setCustomUrl] = useState<string>('');
+  const [customError, setCustomError] = useState<string>('');
+
+  const handleAddCustomTarget = () => {
+    const nameTrimmed = customName.trim();
+    const urlTrimmed = customUrl.trim();
+
+    if (!nameTrimmed || !urlTrimmed) return;
+
+    // 1. URL validation
+    const lowerUrl = urlTrimmed.toLowerCase();
+    if (!lowerUrl.startsWith('http://') && !lowerUrl.startsWith('https://')) {
+      setCustomError('Please enter a valid URL starting with https://');
+      return;
+    }
+
+    // 2. Prevent duplicates (case-insensitive)
+    const lowerName = nameTrimmed.toLowerCase();
+    const isPresetDuplicate = selectedTargets.some(st => st.toLowerCase() === lowerName);
+    const isCustomDuplicate = customBatchTargets.some(ct => ct.name.toLowerCase() === lowerName);
+
+    if (isPresetDuplicate || isCustomDuplicate) {
+      setCustomError(`${nameTrimmed} is already in this batch`);
+      return;
+    }
+
+    // Validation passed
+    setCustomBatchTargets(prev => [...prev, { name: nameTrimmed, url: urlTrimmed }]);
+    setCustomName('');
+    setCustomUrl('');
+    setCustomError('');
+  };
 
   const [batchResults, setBatchResults] = useState<BatchResultItem[]>([]);
   const [batchLoading, setBatchLoading] = useState<boolean>(false);
@@ -408,25 +439,25 @@ ${report.sales_battlecard?.trap_setting}
             <span style={{ fontSize: '11px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Add Custom Target:</span>
             <input
               value={customName}
-              onChange={(e) => setCustomName(e.target.value)}
+              onChange={(e) => {
+                setCustomName(e.target.value);
+                if (customError) setCustomError('');
+              }}
               placeholder="Name (e.g. Linear)"
               style={{ background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '5px 10px', color: '#fff', fontSize: '12px', outline: 'none', width: '130px' }}
             />
             <input
               value={customUrl}
-              onChange={(e) => setCustomUrl(e.target.value)}
+              onChange={(e) => {
+                setCustomUrl(e.target.value);
+                if (customError) setCustomError('');
+              }}
               placeholder="URL (https://...)"
               style={{ background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '5px 10px', color: '#fff', fontSize: '12px', outline: 'none', flex: 1, minWidth: '180px' }}
             />
             <button
               type="button"
-              onClick={() => {
-                if (customName.trim() && customUrl.trim()) {
-                  setCustomBatchTargets(prev => [...prev, { name: customName.trim(), url: customUrl.trim() }]);
-                  setCustomName('');
-                  setCustomUrl('');
-                }
-              }}
+              onClick={handleAddCustomTarget}
               style={{ background: '#1e293b', border: '1px solid #38bdf8', color: '#38bdf8', borderRadius: '6px', padding: '5px 12px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
             >
               <PlusCircle size={13} /> + Add to Batch
@@ -450,6 +481,12 @@ ${report.sales_battlecard?.trap_setting}
                     </button>
                   </span>
                 ))}
+              </div>
+            )}
+
+            {customError && (
+              <div style={{ width: '100%', marginTop: '4px', fontSize: '12px', color: '#ef4444', fontWeight: '600' }}>
+                ⚠️ {customError}
               </div>
             )}
           </div>
